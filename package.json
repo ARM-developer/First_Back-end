@@ -1,0 +1,29 @@
+{
+  "name": "api-rest-nodejs",
+  "version": "1.0.0",
+  "description": "Api Rest del master en JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angel2101/First_Back-end.git"
+  },
+  "author": "Alejandro Ruiz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/angel2101/First_Back-end/issues"
+  },
+  "homepage": "https://github.com/angel2101/First_Back-end#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "connect-multiparty": "^2.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
