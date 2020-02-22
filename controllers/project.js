@@ -1,13 +1,17 @@
 'use strict'
 
 var Project = require('../models/project');
+var fs = require('fs');
 
 var controller = {
+    /********** ruta home metodo get que nos devuelve un mensaje************/
     home : function(req, res){
         return res.status(200).send({
             message : "soy la home"
         });
     },
+
+    /************ ruta test metodo post que nos devuelve un mensaje******************/
 
     test : function(req, res){
         return res.status(200).send({
@@ -15,6 +19,7 @@ var controller = {
         });
     },
     
+    /************ ruta save-project metodo post que agrega un nuevo bson************/
     saveProject : function(req, res){
         var project = new Project();
         var params = req.body;
@@ -35,6 +40,7 @@ var controller = {
         });
     },
 
+    /************ ruta project/:id? metodo get que nos devuelve un documento ************/
     getProject: function(req, res){
         var projectId = req.params.id;
 
@@ -53,6 +59,7 @@ var controller = {
         });
     },
 
+    /************ ruta projects metodo get que nos devuelve los contenido en la DB ************/
     getProjects : function(req, res){
         Project.find({}).sort('-years').exec((err, projects) => {
             if(err) res.status(500).send({message: 'Error al devolver los datos'});
@@ -63,24 +70,74 @@ var controller = {
         });
     },
 
+    /************ ruta project/:id metodo put que nos actualiza un documento ************/
     updateProject : function(req, res){
         var projectId = req.params.id;
         var update = req.body;
         
-        console.log(projectId);
-        
-       
-        Project.findByIdAndUpdate(projectId, update, (err, projectUpdated) => {
+        Project.findByIdAndUpdate(projectId, update, {new:true}, (err, projectUpdated) => {
 
             if(err) res.status(500).send({message: 'Error al actualizar los datos'});
 
-            if(!projects) res.status(404).send({message: 'No existe proyecto para actualizar'});
+            if(!projectUpdated) res.status(404).send({message: 'No existe proyecto para actualizar'});
             
             return res.status(200).send({ 
-                Project : projectUpdated 
+                project : projectUpdated 
             });
         });
     },
+
+    /************ ruta project/:id metodo delete que nos borra un documento ************/
+    deleteProject : function(req, res){
+        var projectId = req.params.id
+
+        Project.findByIdAndRemove(projectId, (err, projectRemove) => {
+            if(err) return res.status(500).send({message: 'Error al borrar los datos'});
+
+            if(!projectRemove) return res.status(404).send({message: 'No se ha podido borrar, por que no exite'});
+
+            return res.status(200).send({
+                project : projectRemove
+            });
+        });
+    },
+
+    /************ ruta metodo put que nos actualiza un documento y le carga una imagen ************/
+    uploadImage : function(req,res){
+        var projectId = req.params.id;
+        var fileName = 'Imagen no subida...';
+
+        if(req.files){
+            var filePath = req.files.image.path;
+            var fileSplit = filePath.split('/');
+            var fileName = fileSplit[1];
+            var extSplit = fileName.split('\.');
+            var fileExt = extSplit[1];
+
+            if(fileExt == 'png' || fileExt == 'jpg' || fileExt == 'jpeg' || fileExt == 'gif'){
+                Project.findByIdAndUpdate(projectId, {image: fileName}, {new : true}, (err, projectUpdated) => {
+                        if(err) res.status(500).send({message: 'Imagen no subida...'});
+        
+                        if(!projectUpdated) res.status(404).send({message: 'El proyecto no existe y no se puede subir la imagen'});
+        
+                        return res.status(200).send({
+                            project: projectUpdated
+                        });
+                    });
+            }else{
+                fs.unlink(filePath, (err) =>{
+                    return res.status(500).send({
+                        message: 'La extensión no es valida'
+                    });
+                });
+            }            
+            
+        }else{
+            return res.status(200).send({
+                message: fileName
+            });
+        }
+    }
 }; 
 
 module.exports = controller;

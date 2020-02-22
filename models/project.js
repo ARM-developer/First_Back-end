@@ -1,4 +1,6 @@
 'use strict'
+//=====================
+//  creacion del modelo
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
