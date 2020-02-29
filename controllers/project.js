@@ -2,6 +2,7 @@
 
 var Project = require('../models/project');
 var fs = require('fs');
+var path = require('path');
 
 var controller = {
     /********** ruta home metodo get que nos devuelve un mensaje************/
@@ -27,7 +28,7 @@ var controller = {
         project.name = params.name;
         project.description = params.description;
         project.category = params.category;
-        project.years = params.years;
+        project.year = params.year;
         project.langs = params.langs;
         project.image = null;
 
@@ -53,7 +54,7 @@ var controller = {
             if(!projectId) res.status(404).send({message: 'El proyecto no existe'});
             
             return res.status(200).send({
-                project
+                project: project
             });
 
         });
@@ -137,6 +138,22 @@ var controller = {
                 message: fileName
             });
         }
+    },
+
+    /************ ruta metodo get que nos descarga una imagen ************/
+    getImageFile: function(req, res){
+        var file = req.params.image;
+        var path_file = './uploads/'+file;
+
+        fs.exists(path_file, (exists) => {
+            if(exists){
+                return res.sendFile(path.resolve(path_file));
+            }else{
+                return res.status(200).send({
+                    message: 'No exite la imagen...'
+                });
+            }
+        });
     }
 }; 
 
