@@ -90,17 +90,35 @@ var controller = {
 
     /************ ruta project/:id metodo delete que nos borra un documento ************/
     deleteProject : function(req, res){
-        var projectId = req.params.id
+        var projectId = req.params.id;
+            
+            Project.findByIdAndRemove(projectId, (err, projectRemove) => {
+                if(err) return res.status(500).send({message: 'Error al borrar los datos'});
 
-        Project.findByIdAndRemove(projectId, (err, projectRemove) => {
-            if(err) return res.status(500).send({message: 'Error al borrar los datos'});
+                if(!projectRemove){
+                    return res.status(404).send({message: 'No se ha podido borrar, por que no exite'});
+                }else{
+                    //si el projecto existe comparamos que tenga imagen
+                    if(projectRemove.image != null){
 
-            if(!projectRemove) return res.status(404).send({message: 'No se ha podido borrar, por que no exite'});
+                        //esta es la ruta del archivo
+                        var path_file = 'uploads/'+projectRemove.image;
 
-            return res.status(200).send({
-                project : projectRemove
+                        //fs. es el filesistem
+                        fs.unlink(path_file,(err) =>{
+                            if(err) res.status(500).send({message: "Error al eliminar la imagen"});
+                            
+                            return res.status(200).send({
+                                project : projectRemove
+                            });
+                          })
+                    }else{
+                        return res.status(200).send({
+                            project : projectRemove
+                        });
+                    }
+                }
             });
-        });
     },
 
     /************ ruta metodo put que nos actualiza un documento y le carga una imagen ************/
@@ -108,7 +126,7 @@ var controller = {
         var projectId = req.params.id;
         var fileName = 'Imagen no subida...';
 
-        if(req.files){
+        if(req.files){            
             var filePath = req.files.image.path;
             var fileSplit = filePath.split('/');
             var fileName = fileSplit[1];
@@ -155,6 +173,7 @@ var controller = {
             }
         });
     }
+
 }; 
 
 module.exports = controller;
